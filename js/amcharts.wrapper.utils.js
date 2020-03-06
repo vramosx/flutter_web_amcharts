@@ -9,89 +9,56 @@ window.amchartsWrapperPlugin = class {
         return element.querySelector(selector);
     };
 
-    showChart = (chartId, config) => {
-        config = JSON.parse(config);
-
-        // id
-
+    showPieChart = (chartId, config) => {
+        this.checkContext(document, "flt-platform-view").then(platformView => {
+            this.checkContext(platformView.shadowRoot, "#" + chartId).then(chart => {
+                config = JSON.parse(config);
+                var chartCreator = new amchartsCreator();
+                chartCreator.createPieChart(chart, config);
+            });
+        });
     }
 }
 
 amchartsCreator = class {
-
-    /*
-    * PieChartConfig:
-    *   - is3D: bool,
-    *   - data: {
-    *       color: string HEX color,
-    *       category: string
-    *       value: double
-    *   }
-    *   - dataSource: String<url>
-    *   - innerRadius: int
-    *   - pieSeries: {
-    *       - labels {
-    *           - template: {
-    *               - disabled: bool
-    *               - text: string
-    *           }
-    *       }
-    *       - ticks: {
-    *           - template: {
-    *               - disabled: bool
-    *           }
-    *       }
-    *       - dataFields: {
-    *       }
-    *       - slices: {
-    *           - template: {
-    *               fillOpacity: double,
-    *               stroke: string HEX color,
-    *               strokeWidth: int,
-    *               strokeOpacity: double,
-    *               tooltipText: string
-    *           }
-    *       }
-    *   }
-    *   - defaultSettings {
-    *       - scale: double
-    *       - shiftRadius: double
-    *       - fillOpacity: double
-    *   }
-    *   - onHoverSettings {
-    *       - scale: double
-    *       - shiftRadius: double
-    *       - fillOpacity: double
-    *   }
-    *   - onActiveSettings {
-    *       - scale: double,
-    *       - shiftRadius: double,
-    *       - fillOpacity: double
-    *   }
-    *   - legend {
-    *       - active: bool,
-    *       - valueLabels: {
-    *           - template {
-    *               - text: string
-    *           }
-    *       }
-    *   }
-    */
-    createPieChart = (chartId, config) => {
+    createPieChart = (chartElement, config) => {
         // instantiate
         var chart;
         if(config.is3D) {
-            chart = am4core.create(chartId, am4charts.PieChart3D);
+            chart = am4core.create(chartElement, am4charts.PieChart3D);
         } else {
-            chart = am4core.create(chartId, am4charts.PieChart);
+            chart = am4core.create(chartElement, am4charts.PieChart);
         }
 
+        // configure pieSeries
+        var pieSeries;
+        if(config.is3D) {
+            pieSeries = chart.series.push(new am4charts.PieSeries3D());
+        } else {
+            pieSeries = chart.series.push(new am4charts.PieSeries());
+        }
 
         // configure data
         if(!config.dataSource) {
             chart.data = config.data;
             pieSeries.dataFields.value = "value";
             pieSeries.dataFields.category = "category";
+
+            if(config.data[0].color) {
+                // convert colors to amChart colors
+                for (let i = 0; i < config.data.length; i++) {
+                    if(!config.data[i].color) {
+                        showError('You need to specify color for every item in config > data. Problem on item index: ' + i);
+                        return;
+                    }
+
+                    config.data[i].color = am4core.color(config.data[i].color);
+                }
+
+                // set color as propertyFields
+                pieSeries.slices.template.propertyFields.fill = 'color';
+            }
+
         } else {
             chart.dataSource.url = config.dataSource
         }
@@ -100,37 +67,9 @@ amchartsCreator = class {
         if(config.innerRadius) {
             chart.innerRadius = am4core.percent(config.innerRadius);
         }
-        
-        // configure pieSeries
-        var pieSeries;
-        if(config.is3D) {
-            pieSeries = chart.series.push(new am4charts.PieSeries3D());
-        } else {
-            pieSeries = chart.series.push(new am4charts.PieSeries());
-        }
          
 
         if(config.pieSeries) {
-            // configure dataFields
-            if(config.pieSeries.dataFields) {
-                pieSeries.dataFields.value = 'value';
-                pieSeries.dataFields.category = 'category';
-
-                if(config.data[0].color) {
-                    // convert colors to amChart colors
-                    for (let i = 0; i < config.data.length; i++) {
-                        if(!config.data[i].color) {
-                            showError('You need to specify color for every item in config > data. Problem on item index: ' + i);
-                            return;
-                        }
-
-                        pieSeries.dataFields[i].color = am4core.color(pieSeries.dataFields[i].color);
-                    }
-
-                    // set color as propertyFields
-                    pieSeries.slices.template.propertyFields.fill = 'color';
-                }
-            }
 
             // configure slices
             if(config.pieSeries.slices) {
@@ -169,7 +108,9 @@ amchartsCreator = class {
                         pieSeries.labels.template.text = config.pieSeries.labels.template.text;
                     }
                 }
+            }
 
+            if(config.pieSeries.ticks) {
                 // configure ticks template
                 if(config.pieSeries.ticks.template) {
                     if(config.pieSeries.ticks.template.disabled != null) {
@@ -246,8 +187,6 @@ amchartsCreator = class {
         }
 
     }
-
-
 }
 
 function showError(msg) {
