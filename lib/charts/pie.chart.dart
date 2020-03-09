@@ -3,7 +3,7 @@ import 'dart:html';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_web_amcharts/amcharts.wrapper.plugin.dart';
-import 'package:flutter_web_amcharts/models.dart';
+import 'package:flutter_web_amcharts/models/pie.models.dart';
 
 class PieChart extends StatefulWidget {
   final String id;

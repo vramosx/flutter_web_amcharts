@@ -1,8 +1,6 @@
 name: flutter_web_amcharts
 description: A new flutter plugin project.
-version: 0.0.1
-authors:
-  - vramosx <vp.ramos@gmail.com>
+version: 0.1.1
 homepage: https://
 
 environment:

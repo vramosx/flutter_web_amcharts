@@ -8,4 +8,5 @@ import 'package:js/js.dart';
 class AmChartJSWrapperPlugin {
   external factory AmChartJSWrapperPlugin();
   external void showPieChart(String chartId, String config);
+  external void showLineChart(String chartId, String config);
 }

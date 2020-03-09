@@ -18,10 +18,21 @@ window.amchartsWrapperPlugin = class {
             });
         });
     }
+
+    showLineChart = (chartId, config) => {
+        this.checkContext(document, "flt-platform-view").then(platformView => {
+            this.checkContext(platformView.shadowRoot, "#" + chartId).then(chart => {
+                config = JSON.parse(config);
+                var chartCreator = new amchartsCreator();
+                chartCreator.createLineChart(chart, config);
+            });
+        });
+    }
 }
 
 amchartsCreator = class {
     createPieChart = (chartElement, config) => {
+        am4core.useTheme(am4themes_animated);
         // instantiate
         var chart;
         if(config.is3D) {
@@ -67,10 +78,8 @@ amchartsCreator = class {
         if(config.innerRadius) {
             chart.innerRadius = am4core.percent(config.innerRadius);
         }
-         
 
         if(config.pieSeries) {
-
             // configure slices
             if(config.pieSeries.slices) {
                 if(config.pieSeries.slices.template) {
@@ -187,6 +196,271 @@ amchartsCreator = class {
         }
 
     }
+
+    /*
+    {
+        "config":
+        {
+            "isDark": false,
+            "useCursor": true,
+            "zoomOutButton": false,
+            "data": [
+                {
+                    "category": "2019-09-20",
+                    "value": 0.56
+                },
+                {
+                    "category": "2019-09-21",
+                    "value": 0.65
+                },
+                {
+                    "category": "2019-09-21",
+                    "value": 0.98
+                }
+            ],
+            "xAxes": {
+                "type": "category",
+                "dataFields": {
+                    "category": "category"," 
+                }
+                "title": {
+                    "text": "Countries"
+                }
+            },
+            "yAxes": {
+                "title": {
+                    "text": "Values"
+                }
+            },
+            "series": [{
+                "id": "serie_unique_id",
+                "name": "Name Series",
+                "type": "line",
+                "stroke": "hex color",
+                "fill": "hex color or gradient",
+                "strokeWidth": 3,
+                "dataFields": {
+                    "valueY": "value",
+                    "categoryX": "category"
+                }
+            }],
+            "legend": {
+                "active": true,
+                "position": "right",
+                "scrollable": true,
+                "highlightOnHover": true
+            },
+            "scrollbarX": {
+                "enabled": true,
+                "seriesId": "serie_unique_id"
+            },
+            "scrollbarY": {
+                "enabled": true,
+                "seriesId": "serie_unique_id"
+            }
+        }
+    }
+    */
+    createLineChart = (chartElement, config) => {
+        var chartSeries = {};
+        am4core.useTheme(am4themes_animated);
+
+        // instantiate
+        var chart, yAxes, xAxes, series;
+        chart = am4core.create(chartElement, am4charts.XYChart);
+
+        if (config.isDark) {
+            am4core.useTheme(am4themes_dark);
+        }
+
+        // configure dataSource
+        if(!config.dataSource) {
+            chart.data = config.data;
+        } else {
+            chart.dataSource.url = config.dataSource;
+        }
+
+        // Configure ZoomOutButton
+        if(config.zoomOutButton == false) chart.zoomOutButton.disabled = true;
+
+        // Configure xAxes
+        if(config.xAxes) {
+            switch(config.xAxes.type) {
+                case 'category': 
+                    xAxes = chart.xAxes.push(new am4charts.CategoryAxis()); 
+                    xAxes.dataFields.category = "category";
+                    break;
+                case 'date': xAxes = chart.xAxes.push(new am4charts.DateAxis()); break;
+            }
+        }
+
+        // Configure yAxes
+        if(config.yAxes) {
+            yAxes = chart.yAxes.push(new am4charts.ValueAxis());
+            // configure yAxes title
+            if(config.yAxes.title) {
+                if(config.yAxes.title.text) {
+                    yAxes.title.text = config.yAxes.title.text;
+                }
+            }
+        }
+
+        // configure legend
+        if(config.legend) {
+            if(config.legend.active) {
+                chart.legend = new am4charts.Legend();
+            }
+
+            if(config.legend.position) {
+                chart.legend.position = config.legend.position;
+            }
+
+            if(config.legend.scrollable) {
+                chart.legend.scrollable = config.legend.scrollable;
+            }
+
+            if(config.legend.highlightOnHover) {
+                chart.legend.itemContainers.template.events.on("over", function(event) {
+                    onLegendHover_select(chart, event.target.dataItem.dataContext);
+                });
+
+                chart.legend.itemContainers.template.events.on("out", function(event) {
+                    onLegendOut_deselect(chart, event.target.dataItem.dataContext);
+                });
+            }
+        }
+
+
+        // configure series
+        if(config.series) {
+            for (const serie in config.series) {
+                const s = config.series[serie];
+                var nserie = chart.series.push(new am4charts.LineSeries());
+
+                if(s.dataFields) {
+                    if(s.dataFields.valueY) {
+                        nserie.dataFields.valueY = s.dataFields.valueY;
+                    }
+
+                    if(s.dataFields.categoryX) {
+                        nserie.dataFields.categoryX = s.dataFields.categoryX;
+                    }
+                }
+                
+                if(s.name) nserie.name = s.name;
+                if(s.stroke) nserie.stroke = am4core.color(s.stroke);
+                if(s.strokeWidth) nserie.strokeWidth = s.strokeWidth;
+
+                nserie.tooltipText = "{" + s.dataFields.valueY + "}";
+
+                nserie.tooltip.background.cornerRadius = 20;
+                nserie.tooltip.background.strokeOpacity = 0;
+                nserie.tooltip.pointerOrientation = "vertical";
+                nserie.tooltip.label.minWidth = 40;
+                nserie.tooltip.label.minHeight = 40;
+                nserie.tooltip.label.textAlign = "middle";
+                nserie.tooltip.label.textValign = "middle";
+
+                var bullet = nserie.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.strokeWidth = 2;
+                bullet.circle.radius = 4;
+                bullet.tooltipText = "[bold]CDI:[/] {cdi}%\n[bold]IBOV:[/] {ibov}%\n[bold]Poupança:[/] {poup}%";
+                bullet.circle.fill = am4core.color("#fff");
+
+                var bullethover = bullet.states.create("hover");
+                bullethover.properties.scale = 1.3;
+
+                if(s.fill) {
+                    nserie.fillOpacity = 1;
+                    nserie.fill = this.createColorGradient(s.fill);
+                }
+
+                chartSeries[s.id] = nserie;
+            }
+        }
+
+        if(config.useCursor) {
+            chart.cursor = new am4charts.XYCursor();
+        }
+
+        if(config.scrollbarX) {
+            if(config.scrollbarX.enabled && config.scrollbarX.seriesId) {
+                var scrollX = new am4charts.XYChartScrollbar();
+                scrollX.series.push(chartSeries[config.scrollbarX.seriesId]);
+                chart.scrollbarX = scrollX;
+            }
+            else if (config.scrollbarX.enabled && config.scrollbarX.seriesId){
+                chart.scrollbarX = new am4core.Scrollbar();
+            }
+        }
+
+        if(config.scrollbarY) {
+            if(config.scrollbarY.enabled && config.scrollbarY.seriesId) {
+                var scrollY = new am4core.XYChartScrollbar();
+                scrollY.series.push(chartSeries[config.scrollbarY.seriesId]);
+                chart.scrollbarY = scrollY;
+            }
+            else if (config.scrollbarY.enabled && config.scrollbarY.seriesId){
+                chart.scrollbarY = new am4core.Scrollbar();
+            }
+        }
+    }
+
+    createColorGradient = (gradientJson) => {
+        if (gradientJson.isGradient) {
+          var gradient = new am4core.LinearGradient();
+          gradient.rotation = 90;
+
+          for (let i = 0; i < gradientJson.gradient.length; i++) {
+            const g = gradientJson.gradient[i];
+            gradient.addColor(am4core.color(g.color));
+          }
+          
+          return gradient;
+        }
+
+        return am4core.color(gradientJson);
+    }
+
+    rgb2hex(rgb){
+        rgb = rgb.match(/(.*?)(rgb|rgba)\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/i);
+        var rgbColor = (rgb && rgb.length >= 5) ? "#" +
+         ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) +
+         ("0" + parseInt(rgb[4],10).toString(16)).slice(-2) +
+         ("0" + parseInt(rgb[5],10).toString(16)).slice(-2) : '';
+        
+         var alpha = rgb[6];
+           return {
+           "hex": rgbColor,
+           "alpha": alpha
+         }
+    }
+}
+
+function onLegendHover_select(chart, hoveredSeries) {
+    hoveredSeries.toFront();
+    
+    hoveredSeries.segments.each(function(segment) {
+        segment.setState("hover");
+    })
+    
+    chart.series.each(function(series) {
+        if (series != hoveredSeries) {
+        series.segments.each(function(segment) {
+            segment.setState("dimmed");
+        })
+        series.bulletsContainer.setState("dimmed");
+        }
+    });
+}
+
+function onLegendOut_deselect(chart, hoveredSeries) {
+    chart.series.each(function(series) {
+        series.segments.each(function(segment) {
+          segment.setState("default");
+        })
+        series.bulletsContainer.setState("default");
+    });
 }
 
 function showError(msg) {
