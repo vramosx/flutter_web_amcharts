@@ -9,7 +9,7 @@ enum ChartLegendPosition { left, right, top, bottom }
 
 class ChartBulletCircle {
   int strokeWidth;
-  int radius;
+  double radius;
   dynamic fill;
 
   ChartBulletCircle({this.strokeWidth, this.radius, this.fill});
@@ -41,13 +41,16 @@ class ChartBullet {
   Map<String, dynamic> toJson() {
     var json = Map<String, dynamic>();
 
-    json['type'] = 'circle';
     if (this.tooltipText != null) json['tooltipText'] = this.tooltipText;
     if (this.onHoverScale != null) {
       json['onHover'] = {"scale": this.onHoverScale};
     }
 
-    if (this.circle != null) json['circle'] = this.circle.toJson();
+    debugPrint('this.circle ${this.circle}');
+    if (this.circle != null) {
+      json['circle'] = this.circle.toJson();
+      json['type'] = 'circle';
+    }
 
     return json;
   }
@@ -264,6 +267,7 @@ class ChartSeries {
   Color stroke;
   dynamic fill;
   int strokeWidth;
+  String tooltipText;
   ChartDataFields dataFields;
   ChartBullet bullet;
   ChartTooltip tooltip;
@@ -275,6 +279,7 @@ class ChartSeries {
       this.stroke,
       this.fill,
       this.strokeWidth,
+      this.tooltipText,
       this.bullet,
       this.tooltip,
       this.dataFields});
@@ -300,6 +305,8 @@ class ChartSeries {
     if (this.stroke != null) {
       data['stroke'] = Utils.toRGBA(this.stroke);
     }
+
+    if (this.tooltipText != null) data['tooltipText'] = tooltipText;
 
     if (this.fill.runtimeType == Color ||
         this.fill.runtimeType == MaterialColor) {

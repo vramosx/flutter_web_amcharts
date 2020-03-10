@@ -326,6 +326,8 @@ amchartsCreator = class {
                 case 'category':
                     xAxes = chart.xAxes.push(new am4charts.CategoryAxis());
                     xAxes.dataFields.category = "category";
+                    xAxes.groupData = true;
+                    xAxes.groupCount = 500;
                     break;
                 case 'date': xAxes = chart.xAxes.push(new am4charts.DateAxis()); break;
             }
@@ -388,6 +390,7 @@ amchartsCreator = class {
                 if (s.name) nserie.name = s.name;
                 if (s.stroke) nserie.stroke = am4core.color(s.stroke);
                 if (s.strokeWidth) nserie.strokeWidth = s.strokeWidth;
+                if (s.tooltipText) nserie.tooltipText = s.tooltipText;
 
                 // configure tooltip
                 if (s.tooltip) {
@@ -446,10 +449,6 @@ amchartsCreator = class {
                             }
                         }
 
-                        if (s.bullet.tooltipText) {
-                            bullet.tooltipText = s.bullet.tooltipText;
-                        }
-
                         if (s.bullet.onHover) {
                             var bullethover = bullet.states.create("hover");
 
@@ -457,6 +456,12 @@ amchartsCreator = class {
                                 bullethover.properties.scale = s.bullet.onHover.scale;
                             }
                         }
+                    }
+
+                    if (s.bullet.tooltipText) {
+                        if (!bullet) bullet = nserie.bullets.push(new am4charts.Bullet());
+
+                        bullet.tooltipText = s.bullet.tooltipText;
                     }
                 }
 
