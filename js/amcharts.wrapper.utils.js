@@ -5,7 +5,7 @@ window.amchartsWrapperPlugin = class {
         while (element.querySelector(selector) === null) {
             await new Promise(resolve => setTimeout(resolve, 500));
         }
-        
+
         return element.querySelector(selector);
     };
 
@@ -35,7 +35,7 @@ amchartsCreator = class {
         am4core.useTheme(am4themes_animated);
         // instantiate
         var chart;
-        if(config.is3D) {
+        if (config.is3D) {
             chart = am4core.create(chartElement, am4charts.PieChart3D);
         } else {
             chart = am4core.create(chartElement, am4charts.PieChart);
@@ -43,22 +43,22 @@ amchartsCreator = class {
 
         // configure pieSeries
         var pieSeries;
-        if(config.is3D) {
+        if (config.is3D) {
             pieSeries = chart.series.push(new am4charts.PieSeries3D());
         } else {
             pieSeries = chart.series.push(new am4charts.PieSeries());
         }
 
         // configure data
-        if(!config.dataSource) {
+        if (!config.dataSource) {
             chart.data = config.data;
             pieSeries.dataFields.value = "value";
             pieSeries.dataFields.category = "category";
 
-            if(config.data[0].color) {
+            if (config.data[0].color) {
                 // convert colors to amChart colors
                 for (let i = 0; i < config.data.length; i++) {
-                    if(!config.data[i].color) {
+                    if (!config.data[i].color) {
                         showError('You need to specify color for every item in config > data. Problem on item index: ' + i);
                         return;
                     }
@@ -75,54 +75,54 @@ amchartsCreator = class {
         }
 
         // pie chart innerRadius
-        if(config.innerRadius) {
+        if (config.innerRadius) {
             chart.innerRadius = am4core.percent(config.innerRadius);
         }
 
-        if(config.pieSeries) {
+        if (config.pieSeries) {
             // configure slices
-            if(config.pieSeries.slices) {
-                if(config.pieSeries.slices.template) {
-                    if(config.pieSeries.slices.template.fillOpacity) {
+            if (config.pieSeries.slices) {
+                if (config.pieSeries.slices.template) {
+                    if (config.pieSeries.slices.template.fillOpacity) {
                         pieSeries.slices.template.fillOpacity = config.pieSeries.slices.template.fillOpacity;
                     }
 
-                    if(config.pieSeries.slices.template.stroke) {
+                    if (config.pieSeries.slices.template.stroke) {
                         pieSeries.slices.template.stroke = am4core.color(config.pieSeries.slices.template.stroke);
                     }
 
-                    if(config.pieSeries.slices.template.strokeWidth) {
+                    if (config.pieSeries.slices.template.strokeWidth) {
                         pieSeries.slices.template.strokeWidth = config.pieSeries.slices.template.strokeWidth;
                     }
 
-                    if(config.pieSeries.slices.template.strokeOpacity) {
+                    if (config.pieSeries.slices.template.strokeOpacity) {
                         pieSeries.slices.template.strokeOpacity = config.pieSeries.slices.template.strokeOpacity;
                     }
 
-                    if(config.pieSeries.slices.template.tooltipText) {
+                    if (config.pieSeries.slices.template.tooltipText) {
                         pieSeries.slices.template.tooltipText = config.pieSeries.slices.template.tooltipText;
                     }
                 }
             }
 
             // configure labels
-            if(config.pieSeries.labels) {
+            if (config.pieSeries.labels) {
                 // configure labels template
-                if(config.pieSeries.labels.template) {
-                    if(config.pieSeries.labels.template.disabled != null) {
+                if (config.pieSeries.labels.template) {
+                    if (config.pieSeries.labels.template.disabled != null) {
                         pieSeries.labels.template.disabled = config.pieSeries.labels.template.disabled;
                     }
 
-                    if(config.pieSeries.labels.template.text != null) {
+                    if (config.pieSeries.labels.template.text != null) {
                         pieSeries.labels.template.text = config.pieSeries.labels.template.text;
                     }
                 }
             }
 
-            if(config.pieSeries.ticks) {
+            if (config.pieSeries.ticks) {
                 // configure ticks template
-                if(config.pieSeries.ticks.template) {
-                    if(config.pieSeries.ticks.template.disabled != null) {
+                if (config.pieSeries.ticks.template) {
+                    if (config.pieSeries.ticks.template.disabled != null) {
                         pieSeries.ticks.template.disabled = config.pieSeries.ticks.template.disabled;
                     }
                 }
@@ -130,65 +130,65 @@ amchartsCreator = class {
         }
 
         // configure default settings (no hover or active)
-        if(config.defaultSettings) {
+        if (config.defaultSettings) {
             var dfs = pieSeries.slices.template.states.getKey("default");
 
-            if(config.defaultSettings.scale) {
+            if (config.defaultSettings.scale) {
                 dfs.properties.scale = config.defaultSettings.scale;
             }
 
-            if(config.defaultSettings.shiftRadius) {
+            if (config.defaultSettings.shiftRadius) {
                 dfs.properties.shiftRadius = config.defaultSettings.shiftRadius;
             }
 
-            if(config.defaultSettings.fillOpacity) {
+            if (config.defaultSettings.fillOpacity) {
                 dfs.properties.fillOpacity = config.defaultSettings.fillOpacity;
             }
         }
 
         // configure onHover settings
-        if(config.onHoverSettings) {
+        if (config.onHoverSettings) {
             var ohs = pieSeries.slices.template.states.getKey("hover");
 
-            if(config.onHoverSettings.scale) {
+            if (config.onHoverSettings.scale) {
                 ohs.properties.scale = config.onHoverSettings.scale;
             }
 
-            if(config.onHoverSettings.shiftRadius) {
+            if (config.onHoverSettings.shiftRadius) {
                 ohs.properties.shiftRadius = config.onHoverSettings.shiftRadius;
             }
 
-            if(config.onHoverSettings.fillOpacity) {
+            if (config.onHoverSettings.fillOpacity) {
                 ohs.properties.fillOpacity = config.onHoverSettings.fillOpacity;
             }
         }
 
         // configure active settings
-        if(config.onActiveSettings) {
+        if (config.onActiveSettings) {
             var oas = pieSeries.slices.template.states.getKey("active");
 
-            if(config.onActiveSettings.scale) {
+            if (config.onActiveSettings.scale) {
                 oas.properties.scale = config.onActiveSettings.scale;
             }
 
-            if(config.onActiveSettings.shiftRadius) {
+            if (config.onActiveSettings.shiftRadius) {
                 oas.properties.shiftRadius = config.onActiveSettings.shiftRadius;
             }
 
-            if(config.onActiveSettings.fillOpacity) {
+            if (config.onActiveSettings.fillOpacity) {
                 oas.properties.fillOpacity = config.onActiveSettings.fillOpacity;
             }
         }
 
         // configure legend
-        if(config.legend) {
-            if(config.legend.active) {
+        if (config.legend) {
+            if (config.legend.active) {
                 chart.legend = new am4charts.Legend();
             }
 
-            if(config.legend.valueLabels) {
-                if(config.legend.valueLabels.template) {
-                    if(config.legend.valueLabels.template.text) {
+            if (config.legend.valueLabels) {
+                if (config.legend.valueLabels.template) {
+                    if (config.legend.valueLabels.template.text) {
                         chart.legend.valueLabels.template.text = config.legend.valueLabels.template.text;
                     }
                 }
@@ -232,6 +232,16 @@ amchartsCreator = class {
                     "text": "Values"
                 }
             },
+
+                var bullet = nserie.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.strokeWidth = 2;
+                bullet.circle.radius = 4;
+                bullet.tooltipText = "[bold]CDI:[/] {cdi}%\n[bold]IBOV:[/] {ibov}%\n[bold]Poupança:[/] {poup}%";
+                bullet.circle.fill = am4core.color("#fff");
+
+                var bullethover = bullet.states.create("hover");
+                bullethover.properties.scale = 1.3;
+
             "series": [{
                 "id": "serie_unique_id",
                 "name": "Name Series",
@@ -239,6 +249,31 @@ amchartsCreator = class {
                 "stroke": "hex color",
                 "fill": "hex color or gradient",
                 "strokeWidth": 3,
+                "bullet": {
+                    "type": "circle",
+                    "circle": {
+                        "strokeWidth": 2;
+                        "radius": 4,
+                        "fill": "rgba color"
+                    },
+                    "onHover": {
+                        "scale": 0.5
+                    }
+                    "tooltipText": ""
+                },
+                "tooltip": {
+                    "background": {
+                        "cornerRadius": 20,
+                        "strokeOpacity": 0
+                    },
+                    "label": {
+                        "minWidth": 40,
+                        "minHeight": 40,
+                        "textAlign": "middle",
+                        "textValign": "middle"
+                    },
+                    "pointerOrientation": "vertical",
+                }
                 "dataFields": {
                     "valueY": "value",
                     "categoryX": "category"
@@ -264,6 +299,8 @@ amchartsCreator = class {
     createLineChart = (chartElement, config) => {
         var chartSeries = {};
         am4core.useTheme(am4themes_animated);
+        console.log('CONFIG');
+        console.log(config);
 
         // instantiate
         var chart, yAxes, xAxes, series;
@@ -274,20 +311,20 @@ amchartsCreator = class {
         }
 
         // configure dataSource
-        if(!config.dataSource) {
+        if (!config.dataSource) {
             chart.data = config.data;
         } else {
             chart.dataSource.url = config.dataSource;
         }
 
         // Configure ZoomOutButton
-        if(config.zoomOutButton == false) chart.zoomOutButton.disabled = true;
+        if (config.zoomOutButton == false) chart.zoomOutButton.disabled = true;
 
         // Configure xAxes
-        if(config.xAxes) {
-            switch(config.xAxes.type) {
-                case 'category': 
-                    xAxes = chart.xAxes.push(new am4charts.CategoryAxis()); 
+        if (config.xAxes) {
+            switch (config.xAxes.type) {
+                case 'category':
+                    xAxes = chart.xAxes.push(new am4charts.CategoryAxis());
                     xAxes.dataFields.category = "category";
                     break;
                 case 'date': xAxes = chart.xAxes.push(new am4charts.DateAxis()); break;
@@ -295,36 +332,36 @@ amchartsCreator = class {
         }
 
         // Configure yAxes
-        if(config.yAxes) {
+        if (config.yAxes) {
             yAxes = chart.yAxes.push(new am4charts.ValueAxis());
             // configure yAxes title
-            if(config.yAxes.title) {
-                if(config.yAxes.title.text) {
+            if (config.yAxes.title) {
+                if (config.yAxes.title.text) {
                     yAxes.title.text = config.yAxes.title.text;
                 }
             }
         }
 
         // configure legend
-        if(config.legend) {
-            if(config.legend.active) {
+        if (config.legend) {
+            if (config.legend.active) {
                 chart.legend = new am4charts.Legend();
             }
 
-            if(config.legend.position) {
+            if (config.legend.position) {
                 chart.legend.position = config.legend.position;
             }
 
-            if(config.legend.scrollable) {
+            if (config.legend.scrollable) {
                 chart.legend.scrollable = config.legend.scrollable;
             }
 
-            if(config.legend.highlightOnHover) {
-                chart.legend.itemContainers.template.events.on("over", function(event) {
+            if (config.legend.highlightOnHover) {
+                chart.legend.itemContainers.template.events.on("over", function (event) {
                     onLegendHover_select(chart, event.target.dataItem.dataContext);
                 });
 
-                chart.legend.itemContainers.template.events.on("out", function(event) {
+                chart.legend.itemContainers.template.events.on("out", function (event) {
                     onLegendOut_deselect(chart, event.target.dataItem.dataContext);
                 });
             }
@@ -332,45 +369,98 @@ amchartsCreator = class {
 
 
         // configure series
-        if(config.series) {
+        if (config.series) {
             for (const serie in config.series) {
+                var bullet;
                 const s = config.series[serie];
                 var nserie = chart.series.push(new am4charts.LineSeries());
 
-                if(s.dataFields) {
-                    if(s.dataFields.valueY) {
+                if (s.dataFields) {
+                    if (s.dataFields.valueY) {
                         nserie.dataFields.valueY = s.dataFields.valueY;
                     }
 
-                    if(s.dataFields.categoryX) {
+                    if (s.dataFields.categoryX) {
                         nserie.dataFields.categoryX = s.dataFields.categoryX;
                     }
                 }
-                
-                if(s.name) nserie.name = s.name;
-                if(s.stroke) nserie.stroke = am4core.color(s.stroke);
-                if(s.strokeWidth) nserie.strokeWidth = s.strokeWidth;
 
-                nserie.tooltipText = "{" + s.dataFields.valueY + "}";
+                if (s.name) nserie.name = s.name;
+                if (s.stroke) nserie.stroke = am4core.color(s.stroke);
+                if (s.strokeWidth) nserie.strokeWidth = s.strokeWidth;
 
-                nserie.tooltip.background.cornerRadius = 20;
-                nserie.tooltip.background.strokeOpacity = 0;
-                nserie.tooltip.pointerOrientation = "vertical";
-                nserie.tooltip.label.minWidth = 40;
-                nserie.tooltip.label.minHeight = 40;
-                nserie.tooltip.label.textAlign = "middle";
-                nserie.tooltip.label.textValign = "middle";
+                // configure tooltip
+                if (s.tooltip) {
+                    if (s.tooltip.background) {
+                        if (s.tooltip.background.cornerRadius) {
+                            nserie.tooltip.background.cornerRadius = s.tooltip.background.cornerRadius;
+                        }
 
-                var bullet = nserie.bullets.push(new am4charts.CircleBullet());
-                bullet.circle.strokeWidth = 2;
-                bullet.circle.radius = 4;
-                bullet.tooltipText = "[bold]CDI:[/] {cdi}%\n[bold]IBOV:[/] {ibov}%\n[bold]Poupança:[/] {poup}%";
-                bullet.circle.fill = am4core.color("#fff");
+                        if (s.tooltip.background.strokeOpacity) {
+                            nserie.tooltip.background.strokeOpacity = s.tooltip.background.strokeOpacity;
+                        }
 
-                var bullethover = bullet.states.create("hover");
-                bullethover.properties.scale = 1.3;
+                        if (s.tooltip.background.fill) {
+                            nserie.tooltip.getFillFromObject = false;
+                            nserie.tooltip.background.fill = this.createColorGradient(s.tooltip.background.fill);
+                        }
+                    }
 
-                if(s.fill) {
+                    if (s.tooltip.label) {
+                        if (s.tooltip.label.minWidth) {
+                            nserie.tooltip.label.minWidth = s.tooltip.label.minWidth;
+                        }
+
+                        if (s.tooltip.label.minHeight) {
+                            nserie.tooltip.label.minHeight = s.tooltip.label.minHeight;
+                        }
+
+                        if (s.tooltip.label.textAlign) {
+                            nserie.tooltip.label.textAlign = s.tooltip.label.textAlign;
+                        }
+
+                        if (s.tooltip.label.textValign) {
+                            nserie.tooltip.label.textValign = s.tooltip.label.textValign;
+                        }
+
+                        if (s.tooltip.label.fill) {
+                            nserie.tooltip.label.fill = this.createColorGradient(s.tooltip.label.fill);
+                        }
+                    }
+                }
+
+                if (s.bullet) {
+                    if (s.bullet.type == 'circle') {
+                        bullet = nserie.bullets.push(new am4charts.CircleBullet());
+                        if (s.bullet.circle) {
+                            if (s.bullet.circle.strokeWidth) {
+                                bullet.circle.strokeWidth = s.bullet.circle.strokeWidth;
+                            }
+
+                            if (s.bullet.circle.radius) {
+                                bullet.circle.radius = s.bullet.circle.radius;
+                            }
+
+                            if (s.bullet.circle.fill) {
+                                bullet.circle.fill = this.createColorGradient(s.bullet.circle.fill);
+                            }
+                        }
+
+                        if (s.bullet.tooltipText) {
+                            bullet.tooltipText = s.bullet.tooltipText;
+                        }
+
+                        if (s.bullet.onHover) {
+                            var bullethover = bullet.states.create("hover");
+
+                            if (s.bullet.onHover.scale) {
+                                bullethover.properties.scale = s.bullet.onHover.scale;
+                            }
+                        }
+                    }
+                }
+
+                if (s.fill) {
                     nserie.fillOpacity = 1;
                     nserie.fill = this.createColorGradient(s.fill);
                 }
@@ -379,28 +469,28 @@ amchartsCreator = class {
             }
         }
 
-        if(config.useCursor) {
+        if (config.useCursor) {
             chart.cursor = new am4charts.XYCursor();
         }
 
-        if(config.scrollbarX) {
-            if(config.scrollbarX.enabled && config.scrollbarX.seriesId) {
+        if (config.scrollbarX) {
+            if (config.scrollbarX.enabled && config.scrollbarX.seriesId) {
                 var scrollX = new am4charts.XYChartScrollbar();
                 scrollX.series.push(chartSeries[config.scrollbarX.seriesId]);
                 chart.scrollbarX = scrollX;
             }
-            else if (config.scrollbarX.enabled && config.scrollbarX.seriesId){
+            else if (config.scrollbarX.enabled && config.scrollbarX.seriesId) {
                 chart.scrollbarX = new am4core.Scrollbar();
             }
         }
 
-        if(config.scrollbarY) {
-            if(config.scrollbarY.enabled && config.scrollbarY.seriesId) {
+        if (config.scrollbarY) {
+            if (config.scrollbarY.enabled && config.scrollbarY.seriesId) {
                 var scrollY = new am4core.XYChartScrollbar();
                 scrollY.series.push(chartSeries[config.scrollbarY.seriesId]);
                 chart.scrollbarY = scrollY;
             }
-            else if (config.scrollbarY.enabled && config.scrollbarY.seriesId){
+            else if (config.scrollbarY.enabled && config.scrollbarY.seriesId) {
                 chart.scrollbarY = new am4core.Scrollbar();
             }
         }
@@ -408,56 +498,56 @@ amchartsCreator = class {
 
     createColorGradient = (gradientJson) => {
         if (gradientJson.isGradient) {
-          var gradient = new am4core.LinearGradient();
-          gradient.rotation = 90;
+            var gradient = new am4core.LinearGradient();
+            gradient.rotation = 90;
 
-          for (let i = 0; i < gradientJson.gradient.length; i++) {
-            const g = gradientJson.gradient[i];
-            gradient.addColor(am4core.color(g.color));
-          }
-          
-          return gradient;
+            for (let i = 0; i < gradientJson.gradient.length; i++) {
+                const g = gradientJson.gradient[i];
+                gradient.addColor(am4core.color(g.color));
+            }
+
+            return gradient;
         }
 
         return am4core.color(gradientJson);
     }
 
-    rgb2hex(rgb){
+    rgb2hex(rgb) {
         rgb = rgb.match(/(.*?)(rgb|rgba)\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/i);
         var rgbColor = (rgb && rgb.length >= 5) ? "#" +
-         ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) +
-         ("0" + parseInt(rgb[4],10).toString(16)).slice(-2) +
-         ("0" + parseInt(rgb[5],10).toString(16)).slice(-2) : '';
-        
-         var alpha = rgb[6];
-           return {
-           "hex": rgbColor,
-           "alpha": alpha
-         }
+            ("0" + parseInt(rgb[3], 10).toString(16)).slice(-2) +
+            ("0" + parseInt(rgb[4], 10).toString(16)).slice(-2) +
+            ("0" + parseInt(rgb[5], 10).toString(16)).slice(-2) : '';
+
+        var alpha = rgb[6];
+        return {
+            "hex": rgbColor,
+            "alpha": alpha
+        }
     }
 }
 
 function onLegendHover_select(chart, hoveredSeries) {
     hoveredSeries.toFront();
-    
-    hoveredSeries.segments.each(function(segment) {
+
+    hoveredSeries.segments.each(function (segment) {
         segment.setState("hover");
     })
-    
-    chart.series.each(function(series) {
+
+    chart.series.each(function (series) {
         if (series != hoveredSeries) {
-        series.segments.each(function(segment) {
-            segment.setState("dimmed");
-        })
-        series.bulletsContainer.setState("dimmed");
+            series.segments.each(function (segment) {
+                segment.setState("dimmed");
+            })
+            series.bulletsContainer.setState("dimmed");
         }
     });
 }
 
 function onLegendOut_deselect(chart, hoveredSeries) {
-    chart.series.each(function(series) {
-        series.segments.each(function(segment) {
-          segment.setState("default");
+    chart.series.each(function (series) {
+        series.segments.each(function (segment) {
+            segment.setState("default");
         })
         series.bulletsContainer.setState("default");
     });

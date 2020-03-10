@@ -1,6 +1,140 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_web_amcharts/utils.dart';
 
+enum ChartTextAlign { start, end, middle }
+
+enum ChartPointerOrientation { horizontal, vertical, left, right, up, down }
+
+enum ChartLegendPosition { left, right, top, bottom }
+
+class ChartBulletCircle {
+  int strokeWidth;
+  int radius;
+  dynamic fill;
+
+  ChartBulletCircle({this.strokeWidth, this.radius, this.fill});
+
+  Map<String, dynamic> toJson() {
+    var json = Map<String, dynamic>();
+
+    json['strokeWidth'] = this.strokeWidth;
+    json['radius'] = this.radius;
+
+    if (this.fill.runtimeType == Color ||
+        this.fill.runtimeType == MaterialColor) {
+      json['fill'] = Utils.toRGBA(this.fill);
+    } else if (this.fill.runtimeType == LinearGradient) {
+      json['fill'] = Utils.gradientToJSon(this.fill);
+    }
+
+    return json;
+  }
+}
+
+class ChartBullet {
+  double onHoverScale;
+  String tooltipText;
+  ChartBulletCircle circle;
+
+  ChartBullet({this.onHoverScale, this.tooltipText, this.circle});
+
+  Map<String, dynamic> toJson() {
+    var json = Map<String, dynamic>();
+
+    json['type'] = 'circle';
+    if (this.tooltipText != null) json['tooltipText'] = this.tooltipText;
+    if (this.onHoverScale != null) {
+      json['onHover'] = {"scale": this.onHoverScale};
+    }
+
+    if (this.circle != null) json['circle'] = this.circle.toJson();
+
+    return json;
+  }
+}
+
+class ChartTooltipBackground {
+  int cornerRadius;
+  int strokeOpacity;
+  dynamic fill;
+
+  ChartTooltipBackground({this.cornerRadius, this.strokeOpacity, this.fill});
+
+  Map<String, dynamic> toJson() {
+    var json = Map<String, dynamic>();
+
+    if (this.cornerRadius != null) json['cornerRadius'] = this.cornerRadius;
+    if (this.strokeOpacity != null) json['strokeOpacity'] = this.strokeOpacity;
+
+    if (this.fill != null) {
+      if (this.fill.runtimeType == Color ||
+          this.fill.runtimeType == MaterialColor) {
+        json['fill'] = Utils.toRGBA(this.fill);
+      } else if (this.fill.runtimeType == LinearGradient) {
+        json['fill'] = Utils.gradientToJSon(this.fill);
+      }
+    }
+
+    return json;
+  }
+}
+
+class ChartTooltipLabel {
+  int minWidth;
+  int minHeight;
+  ChartTextAlign textAlign;
+  ChartTextAlign textValign;
+  dynamic fill;
+
+  ChartTooltipLabel(
+      {this.minWidth,
+      this.minHeight,
+      this.textAlign,
+      this.textValign,
+      this.fill});
+
+  Map<String, dynamic> toJson() {
+    var json = Map<String, dynamic>();
+
+    if (this.minWidth != null) json['minWidth'] = this.minWidth;
+    if (this.minHeight != null) json['minHeight'] = this.minHeight;
+    if (this.textAlign != null)
+      json['textAlign'] = Utils.enumToString(this.textAlign);
+    if (this.textValign != null)
+      json['textValign'] = Utils.enumToString(this.textValign);
+
+    if (this.fill != null) {
+      if (this.fill.runtimeType == Color ||
+          this.fill.runtimeType == MaterialColor) {
+        json['fill'] = Utils.toRGBA(this.fill);
+      } else if (this.fill.runtimeType == LinearGradient) {
+        json['fill'] = Utils.gradientToJSon(this.fill);
+      }
+    }
+
+    return json;
+  }
+}
+
+class ChartTooltip {
+  ChartTooltipBackground background;
+  ChartTooltipLabel label;
+  ChartPointerOrientation pointerOrientation;
+
+  ChartTooltip({this.background, this.label, this.pointerOrientation});
+
+  Map<String, dynamic> toJson() {
+    var json = Map<String, dynamic>();
+
+    if (this.background != null) json['background'] = this.background.toJson();
+    if (this.label != null) json['label'] = this.label.toJson();
+    if (this.pointerOrientation != null)
+      json['pointerOrientation'] = Utils.enumToString(this.pointerOrientation);
+
+    return json;
+  }
+}
+
 class LineChartConfig {
   bool isDark;
   bool useCursor;
@@ -71,7 +205,8 @@ class ChartXAxes {
     dataFields = json['dataFields'] != null
         ? new ChartAxisDataFields.fromJson(json['dataFields'])
         : null;
-    title = json['title'] != null ? new ChartTitle.fromJson(json['title']) : null;
+    title =
+        json['title'] != null ? new ChartTitle.fromJson(json['title']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -109,7 +244,8 @@ class ChartYAxes {
   ChartYAxes({this.title});
 
   ChartYAxes.fromJson(Map<String, dynamic> json) {
-    title = json['title'] != null ? new ChartTitle.fromJson(json['title']) : null;
+    title =
+        json['title'] != null ? new ChartTitle.fromJson(json['title']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -129,6 +265,8 @@ class ChartSeries {
   dynamic fill;
   int strokeWidth;
   ChartDataFields dataFields;
+  ChartBullet bullet;
+  ChartTooltip tooltip;
 
   ChartSeries(
       {this.id,
@@ -137,6 +275,8 @@ class ChartSeries {
       this.stroke,
       this.fill,
       this.strokeWidth,
+      this.bullet,
+      this.tooltip,
       this.dataFields});
 
   ChartSeries.fromJson(Map<String, dynamic> json) {
@@ -166,7 +306,15 @@ class ChartSeries {
       data['fill'] = Utils.toRGBA(this.fill);
     } else if (this.fill.runtimeType == LinearGradient) {
       data['fill'] = Utils.gradientToJSon(this.fill);
-    } 
+    }
+
+    if (this.tooltip != null) {
+      data['tooltip'] = this.tooltip.toJson();
+    }
+
+    if (this.bullet != null) {
+      data['bullet'] = this.bullet.toJson();
+    }
 
     data['strokeWidth'] = this.strokeWidth;
     if (this.dataFields != null) {
@@ -192,7 +340,6 @@ class ChartAxisDataFields {
   }
 }
 
-
 class ChartDataFields {
   String valueY;
   String categoryX;
@@ -214,11 +361,12 @@ class ChartDataFields {
 
 class ChartLegend {
   bool active;
-  String position;
+  ChartLegendPosition position;
   bool scrollable;
   bool highlightOnHover;
 
-  ChartLegend({this.active, this.position, this.scrollable, this.highlightOnHover});
+  ChartLegend(
+      {this.active, this.position, this.scrollable, this.highlightOnHover});
 
   ChartLegend.fromJson(Map<String, dynamic> json) {
     active = json['active'];
@@ -230,7 +378,7 @@ class ChartLegend {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['active'] = this.active;
-    data['position'] = this.position;
+    data['position'] = Utils.enumToString(this.position);
     data['scrollable'] = this.scrollable;
     data['highlightOnHover'] = this.highlightOnHover;
     return data;
